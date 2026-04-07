@@ -10,9 +10,13 @@ builder.Services.AddDbContext<AppDbContext>(opt=>
 {
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
+builder.Services.AddCors();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
+app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod().WithOrigins("http://localhost:3000","https://localhost:3000"));
+
 app.MapControllers();
 
 using var scope = app.Services.CreateScope();// Create a temporary service container so I can safely use scoped services (like DbContext). (using so it gets disposed once it finished with it by the garbag collector)
