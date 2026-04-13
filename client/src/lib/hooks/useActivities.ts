@@ -12,7 +12,7 @@ export const useActivities = (id?: string) => {
         const response = await agent.get<Activity[]>('/activities');
         return response.data;
       },
-      enabled: !id && location.pathname === '/activties'
+      enabled: !id && location.pathname === '/activities'
   });
 
   const{data: activity, isLoading: isLoadingActivity} = useQuery({
