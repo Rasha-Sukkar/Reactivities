@@ -1,11 +1,28 @@
 using System;
 using Domain;
+using Microsoft.AspNetCore.Identity;
 
 namespace Persistance;
 public class DbInitializer
 {
-    public static async Task SeedData(AppDbContext context) //making request for db async to await response from db ince it will take time
+    public static async Task SeedData(AppDbContext context,UserManager<User> userManager) //making request for db async to await response from db ince it will take time
     {
+        if (!userManager.Users.Any())
+        {
+            var users= new List<User>
+            {
+                new () {DisplayName= "Bob", UserName="bob@test.com", Email="bob@test.com"},
+                new () {DisplayName= "Tom", UserName="tom@test.com", Email="tom@test.com"},
+                new () {DisplayName= "Jane", UserName="jane@test.com", Email="jane@test.com"}
+            };
+
+            foreach (var user in users)
+            {
+                await userManager.CreateAsync(user,"Pa$$w0rd");
+            }
+        }
+
+
         if (context.Activities.Any()) return; //if there re any activtities return
 
         var activtities = new List<Activity>
