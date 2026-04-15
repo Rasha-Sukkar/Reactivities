@@ -10,4 +10,6 @@ public class User : IdentityUser
 
     public string? ImageUrl { get; set; }
 
+    //navigaton props
+    public ICollection<ActivityAttendee> Activities { get; set; } = [];
 }
