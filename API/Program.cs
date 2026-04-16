@@ -7,6 +7,7 @@ using Application.Core;
 using Application.Interfaces;
 using Domain;
 using FluentValidation;
+using Infrastructure.Photos;
 using Infrastructure.Security;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -34,6 +35,7 @@ builder.Services.AddMediatR(x =>
     x.AddOpenBehavior(typeof(ValidationBehavior<,>));
 });
 builder.Services.AddScoped<IUserAccessor,UserAccessor>();
+builder.Services.AddScoped<IPhotoService,LocalPhotoService>();
 builder.Services.AddAutoMapper(cfg => { }, typeof(MappingProfiles));
 builder.Services.AddValidatorsFromAssemblyContaining<CreateActivityValidator>();
 builder.Services.AddTransient<ExceptionMiddleware>();
@@ -60,6 +62,7 @@ app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
 .AllowCredentials()
 .WithOrigins("http://localhost:3000", "https://localhost:3000"));
 
+app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();

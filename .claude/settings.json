@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(dotnet watch *)",
+      "Bash(npm run *)",
+      "Bash(npm ls *)",
+      "Bash(npm uninstall *)",
+      "Bash(taskkill //F //IM \"node.exe\" //FI \"WINDOWTITLE eq *vite*\")",
+      "Bash(pkill -f \"vite\")",
+      "Bash(netstat -ano)",
+      "Bash(taskkill //PID 31320 //F)",
+      "Bash(taskkill //PID 35320 //F)",
+      "Bash(taskkill //PID 16728 //F)"
+    ]
+  }
+}
