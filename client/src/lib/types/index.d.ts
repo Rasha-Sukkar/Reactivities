@@ -1,24 +1,36 @@
 type Activity = {
-    id: string
-    title: string
-    date: Date
-    description: string
-    category: string
-    isCancelled: boolean
-    city: string
-    venue: string
-    latitude: number
-    longitude: number
+  id: string
+  title: string
+  date: Date
+  description: string
+  category: string
+  isCancelled: boolean
+  city: string
+  venue: string
+  latitude: number
+  longitude: number
+  attendees: Profile[]
+  isGoing: boolean
+  isHost: boolean
+  hostId: string
+  hostDisplayName: string
 }
 
-type User={
-  id:string,
-  email:string,
-  displayName:string,
-  imageUrl?:string
+type Profile = {
+  id: string
+  displayName: string
+  bio?: string
+  imageUrl?: string
 }
 
-type LocationIQSuggestion=  {
+type User = {
+  id: string,
+  email: string,
+  displayName: string,
+  imageUrl?: string
+}
+
+type LocationIQSuggestion = {
   place_id: string
   osm_id: string
   osm_type: string
@@ -39,8 +51,8 @@ type LocationIQAddress = {
   road?: string
   neighbourhood?: string
   suburb?: string
-  town? : string
-  village?:string
+  town?: string
+  village?: string
   city?: string
   state: string
   postcode?: string
