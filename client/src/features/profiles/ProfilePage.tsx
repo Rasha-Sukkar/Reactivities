@@ -6,9 +6,11 @@ import { useParams } from "react-router";
 
 export default function ProfilePage() {
     const { id } = useParams();
-    const { loadingPhotos } = useProfile(id);
+    const { profile, loadingProfile } = useProfile(id);
 
-    if (loadingPhotos) return <Typography>Loading profile...</Typography>
+    if (loadingProfile) return <Typography>Loading profile...</Typography>
+
+    if (!profile) return <Typography>Profile not found</Typography>
 
     return (
         <Grid container>

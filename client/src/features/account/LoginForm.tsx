@@ -19,7 +19,7 @@ export default function LoginForm() {
     const onSubmit = async (data: loginSchema) => {
         await loginUser.mutateAsync(data, {
             onSuccess: () => {
-                navigate(location.state?.from || '/activties');
+                navigate(location.state?.from || '/activities');
             }
         });
     }
