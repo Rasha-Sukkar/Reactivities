@@ -21,4 +21,5 @@ public class Activity
 
     //navigation props
     public ICollection<ActivityAttendee> Attendees { get; set; } =[];
+    public ICollection<Comment> Comments{get;set;}=[];
 }

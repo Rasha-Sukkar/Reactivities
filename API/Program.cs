@@ -1,4 +1,5 @@
 using API.Middleware;
+using API.SignalR;
 using Application.Activities.Commands;
 using Application.Activities.DTOs;
 using Application.Activities.Queries;
@@ -29,6 +30,7 @@ builder.Services.AddDbContext<AppDbContext>(opt =>
     opt.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 builder.Services.AddCors();
+builder.Services.AddSignalR();
 builder.Services.AddMediatR(x =>
 {
     x.RegisterServicesFromAssemblyContaining<GetActivityList.Handler>();
@@ -62,11 +64,14 @@ app.UseCors(x => x.AllowAnyHeader().AllowAnyMethod()
 .AllowCredentials()
 .WithOrigins("http://localhost:3000", "https://localhost:3000"));
 
-app.UseStaticFiles();
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.UseDefaultFiles();
+app.UseStaticFiles();
 app.MapControllers();
 app.MapGroup("api").MapIdentityApi<User>();
+app.MapHub<CommentHub>("/comments");
 
 using var scope = app.Services.CreateScope();// Create a temporary service container so I can safely use scoped services (like DbContext). (using so it gets disposed once it finished with it by the garbag collector)
 var services = scope.ServiceProvider;
