@@ -1,32 +1,50 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useInfiniteQuery, useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import agent from "../api/agent";
 import { useLocation } from "react-router";
 import { useAccount } from "./useAccount";
+import { useStore } from "./useStore";
+
 
 export const useActivities = (id?: string) => {
   const queryclient = useQueryClient();
   const location = useLocation();
   const { currentUser } = useAccount();
+  const { activityStore: { filter, startDate } } = useStore();
 
-  const { data: activities, isFetching } = useQuery({
-    queryKey: ['activities'],
-    queryFn: async () => {
-      const response = await agent.get<Activity[]>('/activities');
-      return response.data;
-    },
-    enabled: !id && location.pathname === '/activities' && !!currentUser,
-    select: data => {
-      return data.map(activity => {
-        const host = activity.attendees.find(x=>x.id===activity.hostId);
-        return {
-          ...activity,
-          isHost: currentUser?.id === activity.hostId,
-          isGoing: activity.attendees.some(x => x.id === currentUser?.id),
-          hostImageUrl: host?.imageUrl
-        }
+  const { data: activitiesGroup, isLoading, isFetching, fetchNextPage, hasNextPage, isFetchingNextPage }
+    = useInfiniteQuery<PagedList<Activity, string>>({
+      queryKey: ['activities', filter, startDate],
+      queryFn: async ({ pageParam = null }) => {
+        const response = await agent.get<PagedList<Activity, string>>('/activities', {
+          params: {
+            cursor: pageParam,
+            pageSize: 3,
+            filter,
+            startDate: startDate.toISOString()
+          }
+        });
+        return response.data;
+      },
+      staleTime:1000*60*5,
+      initialPageParam: null,
+      getNextPageParam: (lastPage) => lastPage.nextCursor,
+      enabled: !id && location.pathname === '/activities' && !!currentUser,
+      select: data => ({
+        ...data,
+        pages: data.pages.map((page) => ({
+          ...page,
+          items: page.items.map(activity => {
+            const host = activity.attendees.find(x => x.id === activity.hostId);
+            return {
+              ...activity,
+              isHost: currentUser?.id === activity.hostId,
+              isGoing: activity.attendees.some(x => x.id === currentUser?.id),
+              hostImageUrl: host?.imageUrl
+            }
+          })
+        }))
       })
-    }
-  });
+    });
 
   const { data: activity, isLoading: isLoadingActivity } = useQuery({
     queryKey: ['activities', id],
@@ -36,7 +54,7 @@ export const useActivities = (id?: string) => {
     },
     enabled: !!id && !!currentUser,
     select: data => {
-      const host = data.attendees.find(x=>x.id===data.hostId);
+      const host = data.attendees.find(x => x.id === data.hostId);
       return {
         ...data,
         isHost: currentUser?.id === data.hostId,
@@ -82,47 +100,51 @@ export const useActivities = (id?: string) => {
   })
 
   const updateAttendance = useMutation({
-    mutationFn: async (id:string)=>{
+    mutationFn: async (id: string) => {
       await agent.post(`/activities/${id}/attend`)
     },
-    onMutate: async (activityId:string)=>{
-      await queryclient.cancelQueries({queryKey:['activities',activityId]})
+    onMutate: async (activityId: string) => {
+      await queryclient.cancelQueries({ queryKey: ['activities', activityId] })
 
-      const preActivity = queryclient.getQueryData<Activity>(['activities',activityId])
+      const preActivity = queryclient.getQueryData<Activity>(['activities', activityId])
 
-      queryclient.setQueryData<Activity>(['activities',activityId],oldActivity=>{
-        if (!oldActivity || !currentUser){
+      queryclient.setQueryData<Activity>(['activities', activityId], oldActivity => {
+        if (!oldActivity || !currentUser) {
           return oldActivity
         }
 
         const isHost = oldActivity.hostId === currentUser.id;
-        const isAttending = oldActivity.attendees.some(x=>x.id===currentUser.id);
+        const isAttending = oldActivity.attendees.some(x => x.id === currentUser.id);
 
-        return{
+        return {
           ...oldActivity,
-          isCancelled:isHost? !oldActivity.isCancelled: oldActivity.isCancelled,
-          attendees: isAttending?isHost?oldActivity.attendees:oldActivity.attendees.filter(x=>x.id!==currentUser.id)
-          :[...oldActivity.attendees,{
-            id:currentUser.id,
-            displayName:currentUser.displayName,
-            imageUrl:currentUser.imageUrl
-          }]
+          isCancelled: isHost ? !oldActivity.isCancelled : oldActivity.isCancelled,
+          attendees: isAttending ? isHost ? oldActivity.attendees : oldActivity.attendees.filter(x => x.id !== currentUser.id)
+            : [...oldActivity.attendees, {
+              id: currentUser.id,
+              displayName: currentUser.displayName,
+              imageUrl: currentUser.imageUrl
+            }]
         }
       })
 
-      return {preActivity}
+      return { preActivity }
     },
-    onError:(error,activityId, context)=>{
+    onError: (error, activityId, context) => {
       console.log(error);
-      if (context?.preActivity){
-        queryclient.setQueryData(['activities',activityId],context.preActivity)
+      if (context?.preActivity) {
+        queryclient.setQueryData(['activities', activityId], context.preActivity)
       }
     }
   })
 
 
   return {
-    activities,
+    activitiesGroup,
+    isLoading,
+    isFetchingNextPage,
+    fetchNextPage,
+    hasNextPage,
     isFetching,
     updateActivity,
     createActivity,

@@ -1,9 +1,11 @@
 using System;
 using System.Runtime.CompilerServices;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace Domain;
 
+[Index(nameof(Date))]
 public class Activity
 {
     public string Id { get; set; } = Guid.NewGuid().ToString(); //primary key since called Id
