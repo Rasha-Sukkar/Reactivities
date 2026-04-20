@@ -71,7 +71,7 @@ export default function ActivityForm() {
             type="submit"
             color="success"
             variant="contained"
-            disabled={updateActivity.isLoading || createActivity.isLoading}
+            disabled={updateActivity.isPending || createActivity.isPending}
           >Submit</Button>
         </Box>
       </Box>
