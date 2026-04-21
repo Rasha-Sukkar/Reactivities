@@ -14,4 +14,12 @@
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Resend" Version="0.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Email\" />
+  </ItemGroup>
+
 </Project>
