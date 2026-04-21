@@ -44,6 +44,12 @@ type User = {
   imageUrl?: string
 }
 
+type ResetPassword = {
+  email: string
+  resetCode: string
+  newPassword: string
+}
+
 type ChatComment = {
   id:string
   createdAt:Date
